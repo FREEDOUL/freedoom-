@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d2e">
+<title>القرآن الكريم - داود حمزة</title>
+<style>
+:root{
+  --bg:#061712;
+  --bg2:#0a2d22;
+  --panel:rgba(16,61,45,.82);
+  --panel2:rgba(21,78,57,.95);
+  --gold:#e6c45c;
+  --gold2:#f5dc7d;
+  --text:#fffaf0;
+  --muted:#b9cfc4;
+  --line:rgba(230,196,92,.20);
+  --shadow:0 14px 40px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;padding-bottom:190px;
+  font-family:Tahoma,"Segoe UI",Arial,sans-serif;color:var(--text);
+  background:
+    radial-gradient(circle at 50% -10%,rgba(45,126,89,.42),transparent 36%),
+    radial-gradient(circle at 100% 35%,rgba(230,196,92,.07),transparent 30%),
+    linear-gradient(160deg,#04110d 0%,var(--bg) 38%,#0a3023 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.045;
+  background-image:radial-gradient(#fff 1px,transparent 1px);
+  background-size:22px 22px;
+}
+header{padding:30px 16px 12px;text-align:center;position:relative}
+header h1{margin:0;color:var(--gold2);font-size:clamp(1.35rem,5vw,2rem);font-weight:800;letter-spacing:.2px}
+header p{margin:9px 0 0;color:var(--muted);font-size:.82rem;line-height:1.7}
+.line{width:92px;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:13px auto 0;border-radius:99px}
+.reciter-info{
+  width:fit-content;max-width:calc(100% - 30px);margin:7px auto 18px;
+  padding:7px 13px;border:1px solid var(--line);border-radius:99px;
+  background:rgba(255,255,255,.045);color:var(--muted);font-size:.75rem;
+  backdrop-filter:blur(8px)
+}
+.reciter-info b{color:var(--gold2)}
+.search-wrap{max-width:900px;margin:auto;padding:0 15px 18px}
+.search-row{display:flex;gap:9px;align-items:center}
+#search{
+  flex:1;min-width:0;padding:14px 17px;border-radius:16px;border:1px solid var(--line);
+  outline:none;background:rgba(255,255,255,.075);color:#fff;font-size:.95rem;
+  box-shadow:0 8px 25px rgba(0,0,0,.12);transition:.2s
+}
+#search::placeholder{color:#9eb9ad}
+#search:focus{border-color:rgba(230,196,92,.7);box-shadow:0 0 0 3px rgba(230,196,92,.08)}
+#micBtn{
+  flex-shrink:0;width:48px;height:48px;border-radius:50%;
+  border:1px solid rgba(230,196,92,.75);background:rgba(230,196,92,.08);
+  color:var(--gold2);font-size:1.2rem;cursor:pointer;transition:.15s
+}
+#micBtn.listening{background:var(--gold);color:#063022;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(230,196,92,.18)}}
+.container{max-width:900px;margin:auto;padding:0 15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:11px}
+.surah-card{
+  position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(18,67,49,.92),rgba(9,43,32,.92));
+  border:1px solid var(--line);border-radius:17px;padding:14px 8px;text-align:center;
+  cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s;
+  user-select:none;box-shadow:0 6px 18px rgba(0,0,0,.10)
+}
+.surah-card:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.05),transparent 45%);pointer-events:none}
+.surah-card:hover{transform:translateY(-2px);border-color:rgba(230,196,92,.6);box-shadow:var(--shadow)}
+.surah-card:active{transform:scale(.97)}
+.surah-card.active{
+  background:linear-gradient(145deg,#217b55,#0d4b34);border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(230,196,92,.35) inset,0 10px 28px rgba(0,0,0,.22)
+}
+.surah-num{
+  width:31px;height:31px;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;color:var(--gold2);border:1px solid rgba(230,196,92,.55);
+  background:rgba(230,196,92,.10);font-size:.72rem
+}
+.surah-name{font-size:.96rem;font-weight:800}
+.surah-meta{color:var(--muted);font-size:.66rem;margin-top:5px}
+.empty-msg{display:none;text-align:center;color:var(--muted);padding:35px}
+.player-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(3,18,13,.94);border-top:1px solid rgba(230,196,92,.35);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  padding:9px 12px calc(10px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 35px rgba(0,0,0,.25)
+}
+.player-top{max-width:900px;margin:auto;display:flex;align-items:center;gap:9px}
+.title{flex:1;min-width:0;text-align:right}
+.now{color:var(--muted);font-size:.66rem}
+.name{color:var(--gold2);font-size:.94rem;font-weight:800;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:2px}
+.ctrl-btn{
+  flex-shrink:0;width:40px;height:40px;border-radius:50%;border:1px solid rgba(230,196,92,.75);
+  background:rgba(230,196,92,.05);color:var(--gold2);font-size:1rem;cursor:pointer;transition:.15s
+}
+.ctrl-btn.play{width:47px;height:47px;background:var(--gold);color:#063022;border:none;font-size:1.08rem;box-shadow:0 6px 18px rgba(230,196,92,.18)}
+.ctrl-btn:active{transform:scale(.91)}
+.progress-area{max-width:900px;margin:8px auto 0}
+#progress{width:100%;height:5px;appearance:none;cursor:pointer;accent-color:var(--gold)}
+#progress::-webkit-slider-thumb{width:14px;height:14px}
+.time-row{display:flex;justify-content:space-between;color:var(--muted);font-size:.62rem;direction:ltr;margin-top:2px}
+.volume-row{max-width:900px;margin:4px auto 0;display:flex;align-items:center;gap:7px;color:var(--gold)}
+#volume{width:100px;height:4px;accent-color:var(--gold)}
+@media(max-width:500px){
+  header{padding-top:22px}
+  .grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .surah-card{padding:11px 4px;border-radius:13px}
+  .surah-name{font-size:.78rem}
+  .surah-meta{font-size:.58rem}
+  .player-bar{padding:8px 8px calc(9px + env(safe-area-inset-bottom))}
+  .player-top{gap:6px}
+  .ctrl-btn{width:35px;height:35px}
+  .ctrl-btn.play{width:43px;height:43px}
+  .name{font-size:.80rem}
+  #volume{width:75px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>القرآن الكريم كاملاً</h1>
+  <p>بصوت القارئ الشيخ داود حمزة — رواية حفص عن عاصم</p>
+  <div class="line"></div>
+</header>
+
+<div class="reciter-info">
+  المصحف المرتل • <b>114</b> سورة • جودة عالية
+</div>
+
+<div class="search-wrap">
+  <div class="search-row">
+    <input type="text" id="search" placeholder="🔎 ابحث باسم السورة أو رقمها..." autocomplete="off">
+    <button id="micBtn" title="بحث صوتي">🎤</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid" id="grid"></div>
+  <div class="empty-msg" id="emptyMsg">لم يتم العثور على نتائج</div>
+</div>
+
+<!-- PLAYER -->
+<div class="player-bar">
+  <div class="player-top">
+    <button class="ctrl-btn" id="prevBtn" title="السورة السابقة">›</button>
+    <button class="ctrl-btn play" id="playBtn" title="تشغيل / إيقاف">▶</button>
+    <button class="ctrl-btn" id="nextBtn" title="السورة التالية">‹</button>
+    <div class="title">
+      <div class="now" id="nowLabel">اختر سورة للاستماع</div>
+      <div class="name" id="nameLabel">—</div>
+    </div>
+  </div>
+
+  <div class="progress-area">
+    <input type="range" id="progress" min="0" max="100" value="0">
+    <div class="time-row">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+  </div>
+
+  <div class="volume-row">
+    🔊
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+  </div>
+</div>
+
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+/* =========================
+   قائمة السور
+========================= */
+const surahs = [
+"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
+"هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+"الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+"لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر",
+"فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق",
+"الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة",
+"الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج",
+"نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","التكوير",
+"الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس",
+"الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة",
+"التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد",
+"الإخلاص","الفلق","الناس"
+];
+
+/* =========================
+   مصادر الصوت
+   الأساسي: Internet Archive
+   الاحتياطي: MP3Quran
+========================= */
+const AUDIO_SERVERS = [
+  "https://archive.org/download/Al-Quran_Hafs_tilawat_Daoud_Hamza/",
+  "https://server9.mp3quran.net/hamza/"
+];
+
+let audioServerIndex = 0;
+let retryingAudio = false;
+
+/* =========================
+   العناصر
+========================= */
+const grid = document.getElementById("grid");
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("playBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const nowLabel = document.getElementById("nowLabel");
+const nameLabel = document.getElementById("nameLabel");
+const searchInput = document.getElementById("search");
+const emptyMsg = document.getElementById("emptyMsg");
+const progress = document.getElementById("progress");
+const currentTime = document.getElementById("currentTime");
+const duration = document.getElementById("duration");
+const volume = document.getElementById("volume");
+
+let currentIndex = null;
+
+function pad(number){
+  return String(number).padStart(3,"0");
+}
+
+function formatTime(seconds){
+  if(!isFinite(seconds)) return "0:00";
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return minutes + ":" + String(secs).padStart(2,"0");
+}
+
+/* =========================
+   عرض السور
+========================= */
+function renderGrid(filter = ""){
+  grid.innerHTML = "";
+  let found = false;
+
+  surahs.forEach((name,index)=>{
+    const number = index + 1;
+
+    if(filter && !name.includes(filter) && !String(number).includes(filter)){
+      return;
+    }
+
+    found = true;
+
+    const card = document.createElement("div");
+    card.className = "surah-card";
+    if(currentIndex === index) card.classList.add("active");
+
+    card.innerHTML = `
+      <div class="surah-num">${number}</div>
+      <div class="surah-name">${name}</div>
+      <div class="surah-meta">سورة</div>
+    `;
+
+    card.addEventListener("click", ()=>playSurah(index));
+    grid.appendChild(card);
+  });
+
+  emptyMsg.style.display = found ? "none" : "block";
+}
+
+/* =========================
+   تشغيل سورة
+========================= */
+function loadAudioFromServer(index){
+  const number = index + 1;
+  const file = AUDIO_SERVERS[audioServerIndex] + pad(number) + ".mp3";
+
+  audio.src = file;
+  audio.load();
+
+  nowLabel.textContent =
+    audioServerIndex === 0
+      ? "جاري تحميل الصوت من المصدر عالي الجودة..."
+      : "جاري التحميل من المصدر الاحتياطي...";
+
+  audio.play()
+    .then(()=>{
+      retryingAudio = false;
+      nowLabel.textContent = "يتم التشغيل الآن";
+      updatePlayButton();
+    })
+    .catch(error=>{
+      console.error("Audio play error:", error);
+
+      // إن كان المنع بسبب سياسة التشغيل التلقائي فلا نبدّل المصدر
+      if(error && error.name === "NotAllowedError"){
+        nowLabel.textContent = "اضغط ▶ لبدء التشغيل";
+        updatePlayButton();
+        return;
+      }
+      // AbortError يحدث عند تحميل سورة أخرى سريعاً
+      if(error && error.name === "AbortError") return;
+
+      if(audioServerIndex < AUDIO_SERVERS.length - 1){
+        audioServerIndex++;
+        loadAudioFromServer(index);
+      }else{
+        nowLabel.textContent = "تعذر تحميل الصوت، حاول مرة أخرى";
+        updatePlayButton();
+      }
+    });
+}
+
+function playSurah(index){
+  if(index < 0 || index >= surahs.length) return;
+
+  currentIndex = index;
+  audioServerIndex = 0;
+  retryingAudio = false;
+
+  loadAudioFromServer(index);
+
+  nameLabel.textContent = "سورة " + surahs[index];
+  renderGrid(searchInput.value.trim());
+}
+
+/* =========================
+   أزرار التحكم
+========================= */
+playBtn.addEventListener("click", ()=>{
+  if(currentIndex === null){
+    playSurah(0);
+    return;
+  }
+  if(audio.paused){
+    audio.play().catch(error=>console.error(error));
+  }else{
+    audio.pause();
+  }
+});
+
+prevBtn.addEventListener("click", ()=>{
+  if(currentIndex === null) return;
+  if(currentIndex > 0) playSurah(currentIndex - 1);
+});
+
+nextBtn.addEventListener("click", ()=>{
+  if(currentIndex === null) return;
+  if(currentIndex < surahs.length - 1) playSurah(currentIndex + 1);
+});
+
+function updatePlayButton(){
+  playBtn.textContent = audio.paused ? "▶" : "⏸";
+}
+
+/* =========================
+   أحداث الصوت
+========================= */
+audio.addEventListener("play", ()=>{
+  nowLabel.textContent = "يتم التشغيل الآن";
+  updatePlayButton();
+});
+
+audio.addEventListener("pause", ()=>{
+  if(audio.currentTime > 0 && !audio.ended){
+    nowLabel.textContent = "متوقف مؤقتًا";
+  }
+  updatePlayButton();
+});
+
+audio.addEventListener("ended", ()=>{
+  if(currentIndex !== null && currentIndex < surahs.length - 1){
+    playSurah(currentIndex + 1);
+  }else{
+    nowLabel.textContent = "تم إكمال القرآن الكريم";
+    updatePlayButton();
+  }
+});
+
+audio.addEventListener("timeupdate", ()=>{
+  if(audio.duration){
+    progress.value = (audio.currentTime / audio.duration) * 100;
+  }
+  currentTime.textContent = formatTime(audio.currentTime);
+});
+
+audio.addEventListener("loadedmetadata", ()=>{
+  duration.textContent = formatTime(audio.duration);
+});
+
+progress.addEventListener("input", ()=>{
+  if(audio.duration){
+    audio.currentTime = (progress.value / 100) * audio.duration;
+  }
+});
+
+volume.addEventListener("input", ()=>{
+  audio.volume = volume.value;
+});
+audio.volume = 1;
+
+searchInput.addEventListener("input", event=>{
+  renderGrid(event.target.value.trim());
+});
+
+audio.addEventListener("error", ()=>{
+  console.error("تعذر تحميل ملف:", audio.src);
+
+  if(currentIndex !== null && audioServerIndex < AUDIO_SERVERS.length - 1 && !retryingAudio){
+    retryingAudio = true;
+    audioServerIndex++;
+    loadAudioFromServer(currentIndex);
+  }else{
+    nowLabel.textContent = "تعذر تحميل الصوت، حاول مرة أخرى";
+    updatePlayButton();
+  }
+});
+
+audio.addEventListener("stalled", ()=>{
+  if(currentIndex !== null && !retryingAudio){
+    nowLabel.textContent = "إعادة الاتصال بالصوت...";
+  }
+});
+
+audio.addEventListener("waiting", ()=>{
+  if(!audio.paused) nowLabel.textContent = "جاري تحميل الصوت...";
+});
+
+audio.addEventListener("canplay", ()=>{
+  if(!audio.paused) nowLabel.textContent = "يتم التشغيل الآن";
+});
+
+/* =========================
+   الأمر الصوتي
+========================= */
+function norm(s){
+  return s
+    .replace(/[\u064B-\u065F\u0670\u0640]/g,"")
+    .replace(/[أإآٱ]/g,"ا")
+    .replace(/ى/g,"ي")
+    .replace(/ة/g,"ه")
+    .replace(/ؤ/g,"و")
+    .replace(/ئ/g,"ي")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+const normNames = surahs.map(n => norm(n).replace(/\s/g,""));
+
+function findSurah(spoken){
+  const t = norm(spoken)
+    .replace(/(^| )(سوره|شغل|تشغيل|اقرا|افتح|استمع|الي)(?= |$)/g," ")
+    .replace(/(^| )(سوره|شغل|تشغيل|اقرا|افتح|استمع|الي)(?= |$)/g," ")
+    .replace(/\s/g,"");
+
+  if(!t) return -1;
+
+  // رقم السورة
+  const digits = t.replace(/\D/g,"");
+  if(digits && +digits>=1 && +digits<=114) return +digits-1;
+
+  const strip = x => x.replace(/^ال/,"");
+
+  // تطابق تام
+  let i = normNames.findIndex(n => n===t || strip(n)===strip(t));
+  if(i>=0) return i;
+
+  // تطابق جزئي
+  if(t.length>=3){
+    i = normNames.findIndex(n =>
+      n.length>=3 && (n.includes(strip(t)) || strip(t).includes(strip(n)))
+    );
+  }
+  return i;
+}
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const micBtn = document.getElementById("micBtn");
+
+if(!SR){
+  micBtn.style.display = "none";
+}else{
+  const rec = new SR();
+  rec.lang = "ar-SA";
+  rec.interimResults = false;
+  rec.maxAlternatives = 5;
+
+  micBtn.addEventListener("click", ()=>{
+    try{ rec.start(); }catch(e){ rec.stop(); }
+  });
+
+  rec.onstart = ()=>{
+    micBtn.classList.add("listening");
+    nowLabel.textContent = "🎤 تحدث الآن... قل اسم السورة";
+  };
+
+  rec.onend = ()=> micBtn.classList.remove("listening");
+
+  rec.onerror = ()=>{
+    nowLabel.textContent = "تعذر التعرف على الصوت، حاول مرة أخرى";
+  };
+
+  rec.onresult = e=>{
+    const res = e.results[0];
+    for(let k=0;k<res.length;k++){
+      const idx = findSurah(res[k].transcript);
+      if(idx>=0){
+        playSurah(idx);
+        return;
+      }
+    }
+    nowLabel.textContent = "لم أفهم اسم السورة: " + res[0].transcript;
+  };
+}
+
+/* =========================
+   البداية
+========================= */
+renderGrid();
+</script>
+
+<script>
+document.addEventListener("gesturestart", function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener("gesturechange", function(e){ e.preventDefault(); }, {passive:false});
+document.addEventListener("gestureend", function(e){ e.preventDefault(); }, {passive:false});
+let lastTouchEnd = 0;
+document.addEventListener("touchend", function(e){
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, {passive:false});
+</script>
+</body>
+</html>
